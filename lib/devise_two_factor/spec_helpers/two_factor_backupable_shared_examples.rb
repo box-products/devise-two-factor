@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.shared_examples 'two_factor_backupable' do
   describe 'required_fields' do
     it 'has the attr_encrypted fields for otp_backup_codes' do
@@ -18,6 +20,7 @@ RSpec.shared_examples 'two_factor_backupable' do
       it 'generates recovery codes of the correct length' do
         @plaintext_codes.each do |code|
           expect(code.length).to eq(subject.class.otp_backup_code_length)
+          expect(code).to match(/\A[2-7a-z]+\z/)
         end
       end
 
@@ -28,7 +31,7 @@ RSpec.shared_examples 'two_factor_backupable' do
       it 'stores the codes as BCrypt hashes' do
         subject.otp_backup_codes.each do |code|
           # $algorithm$cost$(22 character salt + 31 character hash)
-          expect(code).to match(/\A\$[0-9a-z]{2}\$[0-9]{2}\$[A-Za-z0-9\.\/]{53}\z/)
+          expect(code).to match(%r{\A\$[0-9a-z]{2}\$[0-9]{2}\$[A-Za-z0-9\./]{53}\z})
         end
       end
     end
